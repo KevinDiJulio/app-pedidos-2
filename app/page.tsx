@@ -1,6 +1,5 @@
 import TarjetaProducto from "./components/TarjetaProducto";
 import { Producto } from "./types";
-import styles from "./page.module.css";
 
 async function obtenerProductos(): Promise<Producto[]> {
   const res = await fetch(`${process.env.TIENDA_API_URL}/api/productos`, {
@@ -17,9 +16,9 @@ export default async function Home() {
   const productos = await obtenerProductos();
 
   return (
-    <main className={styles.main}>
-      <h1 className={styles.titulo}>Catálogo de productos</h1>
-      <div className={styles.grilla}>
+    <main className="p-10 max-w-4xl mx-auto">
+      <h1 className="text-2xl font-bold mb-8">Catálogo de productos</h1>
+      <div className="grid grid-cols-2 gap-6">
         {productos.map((producto) => (
           <TarjetaProducto key={producto.id} producto={producto} />
         ))}
