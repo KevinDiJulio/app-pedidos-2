@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { cambiarEstado, cancelarPedido } from "./actions";
-import styles from "./FilaPedido.module.css";
 
 type Pedido = {
   id: number;
@@ -26,25 +25,27 @@ export default function FilaPedido({ pedido }: Props) {
 
   return (
     <tr>
-      <td>{pedido.id}</td>
-      <td>{pedido.productoId}</td>
-      <td>{pedido.cantidad}</td>
-      <td>
+      <td className="px-3.5 py-2.5 border-b border-gray-200">{pedido.id}</td>
+      <td className="px-3.5 py-2.5 border-b border-gray-200">{pedido.productoId}</td>
+      <td className="px-3.5 py-2.5 border-b border-gray-200">{pedido.cantidad}</td>
+      <td className="px-3.5 py-2.5 border-b border-gray-200">
         <select
           value={estado}
           onChange={(e) => handleCambiarEstado(e.target.value)}
-          className={styles.select}
+          className="px-2 py-1 border border-gray-300 rounded-md text-sm cursor-pointer"
         >
           {ESTADOS.map((e) => (
             <option key={e} value={e}>{e}</option>
           ))}
         </select>
       </td>
-      <td>{new Date(pedido.creadoEn).toLocaleDateString("es-AR")}</td>
-      <td>
+      <td className="px-3.5 py-2.5 border-b border-gray-200">
+        {new Date(pedido.creadoEn).toLocaleDateString("es-AR")}
+      </td>
+      <td className="px-3.5 py-2.5 border-b border-gray-200">
         <button
           onClick={() => cancelarPedido(pedido.id)}
-          className={styles.botonCancelar}
+          className="px-3 py-1 bg-red-500 text-white rounded-md text-xs font-semibold cursor-pointer hover:bg-red-600"
         >
           Cancelar
         </button>
