@@ -3,7 +3,17 @@ import { prisma } from "../../../../lib/prisma";
 
 type Params = { params: Promise<{ id: string }> };
 
-export async function GET(_req: NextRequest, { params }: Params) {
+function unauthorized() {
+  return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+}
+
+function checkApiKey(req: NextRequest): boolean {
+  return req.headers.get("x-api-key") === process.env.PEDIDOS_API_KEY;
+}
+
+export async function GET(req: NextRequest, { params }: Params) {
+  if (!checkApiKey(req)) return unauthorized();
+
   const { id } = await params;
   const pedido = await prisma.pedido.findUnique({ where: { id: Number(id) } });
 
@@ -15,10 +25,7 @@ export async function GET(_req: NextRequest, { params }: Params) {
 }
 
 export async function PATCH(req: NextRequest, { params }: Params) {
-  const apiKey = req.headers.get("x-api-key");
-  if (apiKey !== process.env.PEDIDOS_API_KEY) {
-    return NextResponse.json({ error: "No autorizado" }, { status: 401 });
-  }
+  if (!checkApiKey(req)) return unauthorized();
 
   const { id } = await params;
   const body = await req.json();
@@ -31,7 +38,8 @@ export async function PATCH(req: NextRequest, { params }: Params) {
   return NextResponse.json(pedido);
 }
 
-export async function DELETE(_req: NextRequest, { params }: Params) {
+export async function DELETE(req: NextRequest, { params }: Params) {
+  if (!checkApiKey(req)) return unauthorized();
   const { id } = await params;
 
   const pedido = await prisma.pedido.findUnique({ where: { id: Number(id) } });
