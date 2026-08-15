@@ -1,7 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "../../../lib/prisma";
 
-export async function GET() {
+export async function GET(req: NextRequest) {
+  const apiKey = req.headers.get("x-api-key");
+  if (apiKey !== process.env.PEDIDOS_API_KEY) {
+    return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+  }
+
   const pedidos = await prisma.pedido.findMany({
     orderBy: { creadoEn: "desc" },
   });
