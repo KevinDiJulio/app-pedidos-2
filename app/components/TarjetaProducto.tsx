@@ -22,6 +22,7 @@ export default function TarjetaProducto({ producto }: { producto: Producto }) {
   }
 
   const sinStock = producto.stock === 0;
+  const excedido = cantidad > producto.stock;
 
   return (
     <div className={styles.tarjeta}>
@@ -36,19 +37,21 @@ export default function TarjetaProducto({ producto }: { producto: Producto }) {
             <input
               type="number"
               min={1}
-              max={producto.stock}
               value={cantidad}
               onChange={(e) => setCantidad(Math.max(1, Number(e.target.value)))}
-              className={styles.cantidad}
+              className={`${styles.cantidad} ${excedido ? styles.cantidadError : ""}`}
               disabled={sinStock}
             />
             <button
               onClick={hacerPedido}
-              disabled={sinStock || cargando}
+              disabled={sinStock || cargando || excedido}
               className={sinStock ? styles.botonAgotado : styles.boton}
             >
               {sinStock ? "Sin stock" : cargando ? "..." : "Pedir"}
             </button>
+            {excedido && (
+              <p className={styles.advertencia}>Máximo {producto.stock} unidades</p>
+            )}
           </div>
         )}
       </div>
