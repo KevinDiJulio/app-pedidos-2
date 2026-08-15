@@ -22,7 +22,7 @@ export default function TarjetaProducto({ producto }: { producto: Producto }) {
   }
 
   const sinStock = producto.stock === 0;
-  const excedido = cantidad > producto.stock;
+  const excedido = !sinStock && cantidad > producto.stock;
 
   return (
     <div className={styles.tarjeta}>
