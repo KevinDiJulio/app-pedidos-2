@@ -1,7 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "../../../lib/prisma";
 
-export async function GET() {
+function checkApiKey(req: NextRequest): boolean {
+  return req.headers.get("x-api-key") === process.env.PEDIDOS_API_KEY;
+}
+
+export async function GET(req: NextRequest) {
+  if (!checkApiKey(req)) {
+    return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+  }
+
   const pedidos = await prisma.pedido.findMany({
     orderBy: { creadoEn: "desc" },
   });
@@ -9,8 +17,16 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
+  if (!checkApiKey(req)) {
+    return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+  }
+
   const body = await req.json();
-  const { productoId, cantidad } = body;
+  const { productoId, cantidad, userId } = body;
+
+  if (!userId) {
+    return NextResponse.json({ error: "userId requerido" }, { status: 400 });
+  }
 
   // Descontar stock en app-tienda
   const productoRes = await fetch(
@@ -41,7 +57,7 @@ export async function POST(req: NextRequest) {
   );
 
   const pedido = await prisma.pedido.create({
-    data: { productoId, cantidad },
+    data: { productoId, cantidad, userId },
   });
 
   return NextResponse.json(pedido, { status: 201 });
