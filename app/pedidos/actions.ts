@@ -4,17 +4,6 @@ import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
 import { prisma } from "../../lib/prisma";
 
-export async function cambiarEstado(id: number, estado: string) {
-  const { userId } = await auth();
-  if (!userId) throw new Error("No autenticado");
-
-  await prisma.pedido.update({
-    where: { id, userId },
-    data: { estado },
-  });
-  revalidatePath("/pedidos");
-}
-
 export async function cancelarPedido(id: number) {
   const { userId } = await auth();
   if (!userId) throw new Error("No autenticado");
