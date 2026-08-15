@@ -1,34 +1,26 @@
 "use server";
 
+import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
 import { prisma } from "../lib/prisma";
 
 export async function crearPedido(productoId: number, cantidad: number) {
-  const productoRes = await fetch(
-    `${process.env.TIENDA_API_URL}/api/productos/${productoId}`,
-    { headers: { "x-api-key": process.env.TIENDA_API_KEY! } }
-  );
+  const { userId } = await auth();
+  if (!userId) throw new Error("No autenticado");
 
-  if (!productoRes.ok) throw new Error("Producto no encontrado");
+  await prisma.$transaction(async (tx) => {
+    const producto = await tx.producto.findUnique({ where: { id: productoId } });
+    if (!producto) throw new Error("Producto no encontrado");
+    if (producto.stock < cantidad) throw new Error("Stock insuficiente");
 
-  const producto = await productoRes.json();
+    await tx.producto.update({
+      where: { id: productoId },
+      data: { stock: producto.stock - cantidad },
+    });
 
-  if (producto.stock < cantidad) throw new Error("Stock insuficiente");
-
-  await fetch(
-    `${process.env.TIENDA_API_URL}/api/productos/${productoId}`,
-    {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-        "x-api-key": process.env.TIENDA_API_KEY!,
-      },
-      body: JSON.stringify({ stock: producto.stock - cantidad }),
-    }
-  );
-
-  await prisma.pedido.create({
-    data: { productoId, cantidad },
+    await tx.pedido.create({
+      data: { userId, productoId, cantidad },
+    });
   });
 
   revalidatePath("/");
