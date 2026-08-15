@@ -1,9 +1,13 @@
 "use server";
 
+import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
 import { prisma } from "../lib/prisma";
 
 export async function crearPedido(productoId: number, cantidad: number) {
+  const { userId } = await auth();
+  if (!userId) throw new Error("No autenticado");
+
   const productoRes = await fetch(
     `${process.env.TIENDA_API_URL}/api/productos/${productoId}`,
     { headers: { "x-api-key": process.env.TIENDA_API_KEY! } }
@@ -28,7 +32,7 @@ export async function crearPedido(productoId: number, cantidad: number) {
   );
 
   await prisma.pedido.create({
-    data: { productoId, cantidad },
+    data: { userId, productoId, cantidad },
   });
 
   revalidatePath("/");

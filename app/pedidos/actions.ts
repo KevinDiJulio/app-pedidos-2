@@ -1,21 +1,27 @@
 "use server";
 
+import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
 import { prisma } from "../../lib/prisma";
 
 export async function cambiarEstado(id: number, estado: string) {
+  const { userId } = await auth();
+  if (!userId) throw new Error("No autenticado");
+
   await prisma.pedido.update({
-    where: { id },
+    where: { id, userId },
     data: { estado },
   });
   revalidatePath("/pedidos");
 }
 
 export async function cancelarPedido(id: number) {
-  const pedido = await prisma.pedido.findUnique({ where: { id } });
+  const { userId } = await auth();
+  if (!userId) throw new Error("No autenticado");
+
+  const pedido = await prisma.pedido.findUnique({ where: { id, userId } });
   if (!pedido) return;
 
-  // Devolver stock a app-tienda
   const productoRes = await fetch(
     `${process.env.TIENDA_API_URL}/api/productos/${pedido.productoId}`,
     { headers: { "x-api-key": process.env.TIENDA_API_KEY! } }
