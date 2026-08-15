@@ -15,6 +15,11 @@ export async function GET(_req: NextRequest, { params }: Params) {
 }
 
 export async function PATCH(req: NextRequest, { params }: Params) {
+  const apiKey = req.headers.get("x-api-key");
+  if (apiKey !== process.env.PEDIDOS_API_KEY) {
+    return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+  }
+
   const { id } = await params;
   const body = await req.json();
 
