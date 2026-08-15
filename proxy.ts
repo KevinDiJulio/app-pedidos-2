@@ -1,10 +1,11 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 
 const isApiRoute = createRouteMatcher(["/api/(.*)"]);
+const isProtectedRoute = createRouteMatcher(["/pedidos(.*)"]);
 
 export default clerkMiddleware(async (auth, req) => {
   if (isApiRoute(req)) return;
-  await auth.protect();
+  if (isProtectedRoute(req)) await auth.protect();
 });
 
 export const config = {

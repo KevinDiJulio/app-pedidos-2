@@ -68,6 +68,7 @@
 .pedido {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 8px;
 }
 
@@ -78,4 +79,16 @@
   border-radius: 6px;
   font-size: 0.85rem;
   text-align: center;
+}
+
+.cantidadError {
+  border-color: #f87171;
+  outline-color: #f87171;
+}
+
+.advertencia {
+  width: 100%;
+  font-size: 0.75rem;
+  color: #ef4444;
+  margin: 0;
 }
