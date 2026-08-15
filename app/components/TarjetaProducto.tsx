@@ -34,14 +34,15 @@ export default function TarjetaProducto({ producto }: { producto: Producto }) {
         {isSignedIn && (
           <div className={styles.pedido}>
             <p className={styles.stock}>Stock: {producto.stock}</p>
-            <input
-              type="number"
-              min={1}
-              value={cantidad}
-              onChange={(e) => setCantidad(Math.max(1, Number(e.target.value)))}
-              className={`${styles.cantidad} ${excedido ? styles.cantidadError : ""}`}
-              disabled={sinStock}
-            />
+            {!sinStock && (
+              <input
+                type="number"
+                min={1}
+                value={cantidad}
+                onChange={(e) => setCantidad(Math.max(1, Number(e.target.value)))}
+                className={`${styles.cantidad} ${excedido ? styles.cantidadError : ""}`}
+              />
+            )}
             <button
               onClick={hacerPedido}
               disabled={sinStock || cargando || excedido}
