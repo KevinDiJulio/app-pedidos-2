@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { ClerkProvider, UserButton, SignInButton, Show } from "@clerk/nextjs";
 import "./globals.css";
+import styles from "./layout.module.css";
 
 export const metadata: Metadata = {
   title: "Pedidos",
@@ -12,20 +13,18 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <ClerkProvider>
       <html lang="es">
         <body>
-          <nav style={{ padding: "12px 24px", borderBottom: "1px solid #e5e7eb", display: "flex", alignItems: "center", gap: "20px" }}>
+          <nav className={styles.nav}>
             <a href="/">Catálogo</a>
             <Show when="signed-in">
               <a href="/pedidos">Mis pedidos</a>
             </Show>
-            <div style={{ marginLeft: "auto" }}>
+            <div className={styles.navEnd}>
               <Show when="signed-in">
                 <UserButton />
               </Show>
               <Show when="signed-out">
                 <SignInButton mode="modal">
-                  <button style={{ padding: "6px 16px", background: "#111", color: "#fff", border: "none", borderRadius: "4px", cursor: "pointer", fontSize: "0.875rem" }}>
-                    Iniciar sesión
-                  </button>
+                  <button className={styles.btnSignIn}>Iniciar sesión</button>
                 </SignInButton>
               </Show>
             </div>
