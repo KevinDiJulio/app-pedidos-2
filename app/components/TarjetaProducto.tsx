@@ -28,11 +28,11 @@ export default function TarjetaProducto({ producto }: { producto: Producto }) {
       <div className={styles.emoji}>{producto.emoji}</div>
       <h2 className={styles.nombre}>{producto.nombre}</h2>
       <p className={styles.descripcion}>{producto.descripcion}</p>
-      <p className={styles.stock}>Stock: {producto.stock}</p>
       <div className={styles.pie}>
         <span className={styles.precio}>${producto.precio.toLocaleString("es-AR")}</span>
         {isSignedIn && (
           <div className={styles.pedido}>
+            <p className={styles.stock}>Stock: {producto.stock}</p>
             <input
               type="number"
               min={1}

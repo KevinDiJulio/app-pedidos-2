@@ -14,7 +14,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <body>
           <nav style={{ padding: "12px 24px", borderBottom: "1px solid #e5e7eb", display: "flex", alignItems: "center", gap: "20px" }}>
             <a href="/">Catálogo</a>
-            <a href="/pedidos">Mis pedidos</a>
+            <Show when="signed-in">
+              <a href="/pedidos">Mis pedidos</a>
+            </Show>
             <div style={{ marginLeft: "auto" }}>
               <Show when="signed-in">
                 <UserButton />
