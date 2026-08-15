@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { ClerkProvider, UserButton } from "@clerk/nextjs";
+import { ClerkProvider, UserButton, SignInButton, Show } from "@clerk/nextjs";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -16,7 +16,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <a href="/">Catálogo</a>
             <a href="/pedidos">Mis pedidos</a>
             <div style={{ marginLeft: "auto" }}>
-              <UserButton />
+              <Show when="signed-in">
+                <UserButton />
+              </Show>
+              <Show when="signed-out">
+                <SignInButton mode="modal">
+                  <button style={{ padding: "6px 16px", background: "#111", color: "#fff", border: "none", borderRadius: "4px", cursor: "pointer", fontSize: "0.875rem" }}>
+                    Iniciar sesión
+                  </button>
+                </SignInButton>
+              </Show>
             </div>
           </nav>
           {children}
