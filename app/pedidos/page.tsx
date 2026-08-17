@@ -7,6 +7,7 @@ export default async function PedidosPage() {
 
   const pedidos = await prisma.pedido.findMany({
     where: { userId: userId! },
+    include: { producto: true },
     orderBy: { creadoEn: "desc" },
   });
 
@@ -20,7 +21,7 @@ export default async function PedidosPage() {
         <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.9rem" }}>
           <thead>
             <tr>
-              {["#", "Producto ID", "Cantidad", "Estado", "Fecha", "Acciones"].map((col) => (
+              {["#", "Producto", "Cantidad", "Estado", "Fecha", "Acciones"].map((col) => (
                 <th key={col} style={{ textAlign: "left", padding: "10px 14px", borderBottom: "1px solid #e5e7eb", fontWeight: 600, background: "#f9fafb" }}>
                   {col}
                 </th>
