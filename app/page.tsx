@@ -1,20 +1,9 @@
+import { prisma } from "../lib/prisma";
 import TarjetaProducto from "./components/TarjetaProducto";
-import { Producto } from "./types";
 import styles from "./page.module.css";
 
-async function obtenerProductos(): Promise<Producto[]> {
-  const res = await fetch(`${process.env.TIENDA_API_URL}/api/productos`, {
-    headers: { "x-api-key": process.env.TIENDA_API_KEY! },
-    cache: "no-store",
-  });
-
-  if (!res.ok) throw new Error("No se pudo obtener el catálogo");
-
-  return res.json();
-}
-
 export default async function Home() {
-  const productos = await obtenerProductos();
+  const productos = await prisma.producto.findMany();
 
   return (
     <main className={styles.main}>

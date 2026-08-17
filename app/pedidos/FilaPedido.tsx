@@ -5,7 +5,7 @@ import styles from "./FilaPedido.module.css";
 
 type Pedido = {
   id: number;
-  productoId: number;
+  producto: { nombre: string; emoji: string };
   cantidad: number;
   estado: string;
   creadoEn: Date;
@@ -15,7 +15,7 @@ export default function FilaPedido({ pedido }: { pedido: Pedido }) {
   return (
     <tr>
       <td>{pedido.id}</td>
-      <td>{pedido.productoId}</td>
+      <td>{pedido.producto.emoji} {pedido.producto.nombre}</td>
       <td>{pedido.cantidad}</td>
       <td>
         <span className={`${styles.estado} ${styles[pedido.estado]}`}>

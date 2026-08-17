@@ -8,50 +8,17 @@ export async function crearPedido(productoId: number, cantidad: number) {
   const { userId } = await auth();
   if (!userId) throw new Error("No autenticado");
 
-  const productoRes = await fetch(
-    `${process.env.TIENDA_API_URL}/api/productos/${productoId}`,
-    { headers: { "x-api-key": process.env.TIENDA_API_KEY! } }
-  );
+  await prisma.$transaction(async (tx) => {
+    const producto = await tx.producto.findUnique({ where: { id: productoId } });
+    if (!producto) throw new Error("Producto no encontrado");
+    if (producto.stock < cantidad) throw new Error("Stock insuficiente");
 
-  if (!productoRes.ok) throw new Error("Producto no encontrado");
-
-  const producto = await productoRes.json();
-
-  if (producto.stock < cantidad) throw new Error("Stock insuficiente");
-
-  const patchRes = await fetch(
-    `${process.env.TIENDA_API_URL}/api/productos/${productoId}`,
-    {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-        "x-api-key": process.env.TIENDA_API_KEY!,
-      },
-      body: JSON.stringify({ stock: producto.stock - cantidad }),
-    }
-  );
-
-  if (!patchRes.ok) throw new Error("No se pudo actualizar el stock");
-
-  try {
-    await prisma.pedido.create({
-      data: { userId, productoId, cantidad },
+    await tx.producto.update({
+      where: { id: productoId },
+      data: { stock: producto.stock - cantidad },
     });
-  } catch {
-    // Compensación: restaurar el stock si la creación del pedido falló
-    await fetch(
-      `${process.env.TIENDA_API_URL}/api/productos/${productoId}`,
-      {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          "x-api-key": process.env.TIENDA_API_KEY!,
-        },
-        body: JSON.stringify({ stock: producto.stock }),
-      }
-    );
-    throw new Error("Error al crear el pedido");
-  }
+    await tx.pedido.create({ data: { userId, productoId, cantidad } });
+  });
 
   revalidatePath("/");
   revalidatePath("/pedidos");

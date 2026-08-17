@@ -8,30 +8,18 @@ export async function cancelarPedido(id: number) {
   const { userId } = await auth();
   if (!userId) throw new Error("No autenticado");
 
-  const pedido = await prisma.pedido.findUnique({ where: { id, userId } });
-  if (!pedido) return;
+  await prisma.$transaction(async (tx) => {
+    const pedido = await tx.pedido.findUnique({ where: { id } });
+    if (!pedido) throw new Error("Pedido no encontrado");
+    if (pedido.userId !== userId) throw new Error("No autorizado");
 
-  const productoRes = await fetch(
-    `${process.env.TIENDA_API_URL}/api/productos/${pedido.productoId}`,
-    { headers: { "x-api-key": process.env.TIENDA_API_KEY! } }
-  );
+    await tx.producto.update({
+      where: { id: pedido.productoId },
+      data: { stock: { increment: pedido.cantidad } },
+    });
+    await tx.pedido.delete({ where: { id } });
+  });
 
-  if (productoRes.ok) {
-    const producto = await productoRes.json();
-    await fetch(
-      `${process.env.TIENDA_API_URL}/api/productos/${pedido.productoId}`,
-      {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          "x-api-key": process.env.TIENDA_API_KEY!,
-        },
-        body: JSON.stringify({ stock: producto.stock + pedido.cantidad }),
-      }
-    );
-  }
-
-  await prisma.pedido.delete({ where: { id } });
   revalidatePath("/pedidos");
   revalidatePath("/");
 }
